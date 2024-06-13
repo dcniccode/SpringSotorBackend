@@ -16,7 +16,7 @@ public class Asignacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_asignacion;
-    
+    private Long idtecnico;
     private Long idincidencia; // La columna en la tabla "asignacion" que es una clave foránea a "incidencia"
     
     @ManyToOne
@@ -25,5 +25,5 @@ public class Asignacion {
     
     @ManyToOne
     @JoinColumn(name = "idtecnico", referencedColumnName = "id_tecnico", insertable = false, updatable = false)
-    private Tecnico tecnicoAsignado;
+    private Tecnico tecnicoasignado;
 }

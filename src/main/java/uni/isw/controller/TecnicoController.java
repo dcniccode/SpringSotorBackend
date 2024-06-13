@@ -9,85 +9,75 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import uni.isw.model.Tecnico;
 import uni.isw.service.TecnicoService;
 
 @RestController
-@RequestMapping(path="api/v1/tecnico")
+@RequestMapping(path = "api/v1/tecnico")
 public class TecnicoController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    TecnicoService tecnicoService;    
+    TecnicoService tecnicoService;
 
-    @RequestMapping(value="/listar", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Tecnico>> getTecnicos(){
+    @RequestMapping(value = "/listar", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Tecnico>> getTecnicos() {
         List<Tecnico> listaTecnicos = null;
         try {
             listaTecnicos = tecnicoService.getTecnicos();
-            return new ResponseEntity<>(listaTecnicos, HttpStatus.OK);
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Error inesperado", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(listaTecnicos, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/buscar/{id}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tecnico> buscarTecnico(@PathVariable("id") Long id) {
+    @RequestMapping(value = "/buscar", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tecnico> buscarTecnico(@RequestBody Optional<Tecnico> tecnico) {
         try {
-            Optional<Tecnico> tecnico = tecnicoService.getTecnico(id);
+            tecnico = tecnicoService.getTecnico(tecnico.get().getId_tecnico());
+        } catch (Exception e) {
+            logger.error("Error inesperado", e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(tecnico.get(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/insertar", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tecnico> insertarTecnico(@RequestBody Tecnico tecnico) {
+        try {
+            tecnicoService.saveOrUpdateTecnico(tecnico);
+        } catch (Exception e) {
+            logger.error("Error inesperado", e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(tecnico, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/actualizar", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tecnico> actualizarTecnico(@RequestBody Tecnico tecnico) {
+        try {
+            tecnicoService.saveOrUpdateTecnico(tecnico);
+        } catch (Exception e) {
+            logger.error("Error inesperado", e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(tecnico, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/eliminar", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tecnico> eliminarTecnico(@RequestBody Optional<Tecnico> tecnico) {
+        try {
+            tecnico = tecnicoService.getTecnico(tecnico.get().getId_tecnico());
             if (tecnico.isPresent()) {
-                return new ResponseEntity<>(tecnico.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+                tecnicoService.deleteTecnico(tecnico.get().getId_tecnico());
             }
         } catch (Exception e) {
             logger.error("Error inesperado", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @RequestMapping(value="/insertar", method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tecnico> insertarTecnico(@RequestBody Tecnico tecnico){
-        try {
-            tecnicoService.saveOrUpdateTecnico(tecnico);
-            return new ResponseEntity<>(tecnico, HttpStatus.CREATED);
-        } catch(Exception e) {
-            logger.error("Error inesperado", e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value="/actualizar", method=RequestMethod.PUT, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tecnico> actualizarTecnico(@RequestBody Tecnico tecnico){
-        try {
-            tecnicoService.saveOrUpdateTecnico(tecnico);
-            return new ResponseEntity<>(tecnico, HttpStatus.OK);
-        } catch(Exception e) {
-            logger.error("Error inesperado", e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @RequestMapping(value="/eliminar/{id}", method=RequestMethod.DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Tecnico> eliminarTecnico(@PathVariable("id") Long id){
-        try {
-            Optional<Tecnico> tecnico = tecnicoService.getTecnico(id);
-            if(tecnico.isPresent()) {
-                tecnicoService.deleteTecnico(id);
-                return new ResponseEntity<>(tecnico.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
-        } catch(Exception e) {
-            logger.error("Error inesperado", e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(tecnico.get(), HttpStatus.OK);
     }
 }

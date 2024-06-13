@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import uni.isw.model.InformeTecnico;
@@ -39,9 +38,9 @@ public class InformeTecnicoController {
     }
 
     @RequestMapping(value = "/buscar", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<InformeTecnico> searchInformeTecnico(@RequestParam Long id_informe) {
+    public ResponseEntity<InformeTecnico> searchInformeTecnico(@RequestBody Optional<InformeTecnico> informeTecnico) {
         try {
-            Optional<InformeTecnico> informeTecnico = informeTecnicoService.getInformeTecnico(id_informe);
+            informeTecnico = informeTecnicoService.getInformeTecnico(informeTecnico.get().getId_informe());
             if (informeTecnico.isPresent()) {
                 return new ResponseEntity<>(informeTecnico.get(), HttpStatus.OK);
             } else {

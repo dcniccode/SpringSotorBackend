@@ -2,17 +2,15 @@ package uni.isw.controller;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import uni.isw.model.Incidencia;
 import uni.isw.service.IncidenciaService;
 
@@ -37,18 +35,14 @@ public class IncidenciaController {
     }
 
     @RequestMapping(value = "/buscar", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Incidencia> buscarIncidencia(@RequestParam Long id_incidencia) {
+    public ResponseEntity<Incidencia> buscarIncidencia(@RequestBody Optional<Incidencia> incidencia) {
         try {
-            Optional<Incidencia> incidencia = incidenciaService.getIncidencia(id_incidencia);
-            if (incidencia.isPresent()) {
-                return new ResponseEntity<>(incidencia.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
+            incidencia = incidenciaService.getIncidencia(incidencia.get().getId_incidencia());
         } catch (Exception e) {
             logger.error("Error inesperado", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(incidencia.get(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/insertar", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,13 +73,11 @@ public class IncidenciaController {
             incidencia = incidenciaService.getIncidencia(incidencia.get().getId_incidencia());
             if (incidencia.isPresent()) {
                 incidenciaService.deleteIncidencia(incidencia.get().getId_incidencia());
-                return new ResponseEntity<>(incidencia.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             logger.error("Error inesperado", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(incidencia.get(), HttpStatus.OK);
     }
 }
